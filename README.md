@@ -1,8 +1,8 @@
-# C++ Physics Engine → N-Body Gravitational Simulation
+# C++ Physics Engine → N-Body Gravitational Simulation ⋆˚࿔
 
-![output](output.gif)
+![output](assets/output.gif)
 
-A 2D physics engine built from scratch in C++, extended into a real-time N-body gravitational simulation with live Lyapunov exponent visualization.
+A 2D physics engine built from scratch in C++, extended into a real-time N-body gravitational simulation with live Lyapunov exponent visualization. Plans to implement ML chaos prediction.
 
 ---
 
@@ -133,10 +133,16 @@ make run
 
 ## File Structure
 
-| File | Description |
-|------|-------------|
-| `vector2D.h/cpp` | 2D vector math |
-| `RigidBody.h/cpp` | Physical body with Euler integration |
-| `World.h/cpp` | Simple gravity world (original engine) |
-| `Simulation.h/cpp` | N-body gravitational simulation with substep integration |
-| `main.cpp` | SFML rendering, figure-8 initial conditions, Lyapunov computation |
+```
+cpp_physics_engine/
+├── src/
+│   ├── main.cpp          # SFML rendering, figure-8 initial conditions, Lyapunov computation
+│   ├── vector2D.h/cpp    # 2D vector math
+│   ├── RigidBody.h/cpp   # Physical body with Euler integration
+│   ├── World.h/cpp       # Simple gravity world (original engine)
+│   └── Simulation.h/cpp  # N-body gravitational simulation with substep integration
+├── assets/
+│   └── output.gif
+├── Makefile
+└── README.md
+```
