@@ -1,34 +1,34 @@
-# C++ Physics Engine → N-Body Gravitational Simulation ⋆˚࿔
+# n-body gravitational sim built in c++ ⋆˚࿔
 
 ![output](assets/output.gif)
 
-A 2D physics engine built from scratch in C++, extended into a real-time N-body gravitational simulation with live Lyapunov exponent visualization. Plans to implement ML chaos prediction.
+started with building a 2d physics engine to learn c++ and objected oriented programming. always fascinated by the infamous three-body problem, i extended upon the base to to create a real-tie gravitational simulation of n-bodies using **lyapunov exponent visualization**.
+
+- working to implement chaos prediction using machine learning
 
 ---
 
-## Part 1 — Building the Physics Engine
+## the process: Building the Physics Engine
 
 ### Step 1: 2D Vector Math (`vec2D`)
 
-Everything starts with a custom `vec2D` class representing a 2D vector with `float x` and `float y` components. Rather than using a library, we implemented all the math manually to understand what's happening under the hood:
+Everything starts with a custom `vec2D` class representing a 2D vector with `float x` and `float y` components.
 
-- `operator+`, `operator-` — vector addition and subtraction
-- `operator*` — scalar multiplication
-- `operator+=`, `operator-=` — in-place versions for accumulation
-- `magnitude()` — computes `sqrt(x² + y²)`
-- `normalize()` — returns a unit vector in the same direction (handles zero-length case)
-- `dot()` — dot product, used later for distance calculations in the Lyapunov computation
-
-This is the foundation everything else is built on.
+- `operator+`, `operator-` = vector addition and subtraction
+- `operator*` = scalar multiplication
+- `operator+=`, `operator-=` = in-place versions for accumulation
+- `magnitude()` = computes `sqrt(x² + y²)`
+- `normalize()` = returns a unit vector in the same direction (handles zero-length case)
+- `dot()` = dot product, used later for distance calculations in the Lyapunov computation
 
 ### Step 2: Rigid Body (`RigidBody`)
 
 A `RigidBody` represents a physical object in 2D space. It stores:
 
-- `position` — where the object is (vec2D)
-- `velocity` — how fast and in what direction it's moving (vec2D)
-- `acceleration` — current net acceleration from applied forces (vec2D)
-- `mass` — how heavy it is (float)
+- `position` = where the object is (vec2D)
+- `velocity` = how fast and in what direction it's moving (vec2D)
+- `acceleration` = current net acceleration from applied forces (vec2D)
+- `mass` = how heavy it is (float)
 
 Three methods drive the simulation:
 
@@ -36,17 +36,18 @@ Three methods drive the simulation:
 - `update(float dt)` — integrates forward in time using **Euler integration**: velocity updates from acceleration, then position updates from velocity
 - `clearForces()` — resets acceleration to zero after each frame so forces don't accumulate across steps
 
-This is classic OOP encapsulation — each body knows how to simulate itself, and the world just tells it what forces to apply.
+Here, we used **encapsulation**. Each body knows how to simulate itself, and the world tells it what forces to apply.
 
 ### Step 3: World (`World`)
 
 The `World` class owns a list of `RigidBody*` pointers and steps the whole simulation forward. It applies a uniform gravity vector (`vec2D(0, 9.81)` scaled by mass = gravitational force) to every body, calls `update()`, then `clearForces()`.
 
-We used this to build the first visual demo: a bouncing ball falling under gravity, rendered with SFML.
+We started by using this to build a demo of a bouncing ball under gravity.
 
 ### Step 4: Rendering with SFML
 
 We used **SFML (Simple and Fast Multimedia Library)** for the window, event loop, and drawing. Key things used:
+
 - `sf::RenderWindow` — creates the window
 - `sf::CircleShape` — draws bodies
 - `window.setFramerateLimit(60)` — caps the loop at 60fps so `dt = 0.016f` matches real time
@@ -54,7 +55,7 @@ We used **SFML (Simple and Fast Multimedia Library)** for the window, event loop
 
 ---
 
-## Part 2 — N-Body Gravitational Simulation
+## the process: N-Body Gravitational Simulation
 
 With the physics engine in place, we replaced the uniform gravity model with real pairwise gravitational attraction between bodies.
 
@@ -97,9 +98,9 @@ Body 3: pos = ( 0.00000000,  0.00000000), vel = (-0.93240737, -0.86473146)
 
 These are in normalized units where `G = 1` and `m = 1`.
 
-### Lyapunov Exponent — Quantifying Chaos
+### Quantifying Chaos using Lyapunov Exponent
 
-The most interesting part. The **Lyapunov exponent (λ)** measures how fast two nearby trajectories diverge — it's the mathematical definition of chaos.
+THE most interesting part!! The **Lyapunov exponent (λ)** measures how fast two nearby trajectories diverge, aka the **mathematical definition of chaos.**
 
 **How we compute it in real time:**
 
@@ -117,7 +118,7 @@ The most interesting part. The **Lyapunov exponent (λ)** measures how fast two 
 - `λ ≈ 0` → stable, periodic orbit — the figure-8 at the start
 - `λ > 0` → chaotic — nearby trajectories diverge exponentially fast
 
-Because we use Euler integration (not a symplectic integrator), the figure-8 gradually drifts from its perfect periodic orbit over time — and you can watch `λ` climb from near-zero as the system transitions from order into chaos. This numerical drift actually makes the visualization *more* interesting: it demonstrates in real time why the three-body problem has no general closed-form solution.
+Because we use Euler integration (not a symplectic integrator), the figure-8 gradually drifts from its perfect periodic orbit over time. You can even watch `λ` climb from near-zero as the system transitions from order into chaos. This numerical drift actually makes the visualization _more_ interesting: it demonstrates in real time **why the three-body problem has no general closed-form solution.**
 
 ---
 

@@ -2,6 +2,7 @@
 #include <deque>
 #include <cmath>
 #include "Simulation.h"
+#include "EulerIntegrator.h"
 
 const int W = 800;
 const int H = 650;
@@ -20,24 +21,26 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({800, 650}), "N-Body Gravitational Simulation");
     window.setFramerateLimit(60);
 
+    EulerIntegrator euler;
+
     // Figure-8 choreography (Chenciner & Montgomery, 2000)
     RigidBody b1(1.0f, vec2D(-0.97000436f,  0.24308753f));
-    b1.velocity = vec2D( 0.46620368f,  0.43236573f);
+    b1.setVelocity(vec2D( 0.46620368f,  0.43236573f));
     RigidBody b2(1.0f, vec2D( 0.97000436f, -0.24308753f));
-    b2.velocity = vec2D( 0.46620368f,  0.43236573f);
+    b2.setVelocity(vec2D( 0.46620368f,  0.43236573f));
     RigidBody b3(1.0f, vec2D(0.0f, 0.0f));
-    b3.velocity = vec2D(-0.93240737f, -0.86473146f);
+    b3.setVelocity(vec2D(-0.93240737f, -0.86473146f));
 
-    Simulation sim;
+    Simulation sim(&euler);
     sim.addBody(&b1);
     sim.addBody(&b2);
     sim.addBody(&b3);
 
     // Shadow simulation — perturbed copy to track divergence
     RigidBody sb1 = b1, sb2 = b2, sb3 = b3;
-    sb1.position.x += EPSILON;
+    sb1.setPosition(vec2D(sb1.getPosition().x + EPSILON, sb1.getPosition().y));
 
-    Simulation shadow_sim;
+    Simulation shadow_sim(&euler);
     shadow_sim.addBody(&sb1);
     shadow_sim.addBody(&sb2);
     shadow_sim.addBody(&sb3);
@@ -72,8 +75,8 @@ int main() {
         // Full phase-space separation (position + velocity)
         float d2 = 0.f;
         for (int i = 0; i < 3; i++) {
-            vec2D dp = shadow[i]->position - bodies[i]->position;
-            vec2D dv = shadow[i]->velocity - bodies[i]->velocity;
+            vec2D dp = shadow[i]->getPosition() - bodies[i]->getPosition();
+            vec2D dv = shadow[i]->getVelocity() - bodies[i]->getVelocity();
             d2 += dp.dot(dp) + dv.dot(dv);
         }
         float d = sqrtf(d2);
@@ -84,10 +87,10 @@ int main() {
 
             float scale = EPSILON / d;
             for (int i = 0; i < 3; i++) {
-                vec2D dp = shadow[i]->position - bodies[i]->position;
-                vec2D dv = shadow[i]->velocity - bodies[i]->velocity;
-                shadow[i]->position = bodies[i]->position + dp * scale;
-                shadow[i]->velocity = bodies[i]->velocity + dv * scale;
+                vec2D dp = shadow[i]->getPosition() - bodies[i]->getPosition();
+                vec2D dv = shadow[i]->getVelocity() - bodies[i]->getVelocity();
+                shadow[i]->setPosition(bodies[i]->getPosition() + dp * scale);
+                shadow[i]->setVelocity(bodies[i]->getVelocity() + dv * scale);
             }
         }
 
@@ -96,7 +99,7 @@ int main() {
             lambda_history.pop_front();
 
         for (int i = 0; i < 3; i++) {
-            trails[i].push_back(toScreen(bodies[i]->position));
+            trails[i].push_back(toScreen(bodies[i]->getPosition()));
             if ((int)trails[i].size() > TRAIL_MAX)
                 trails[i].pop_front();
         }
@@ -117,7 +120,7 @@ int main() {
             sf::CircleShape dot(6.f);
             dot.setFillColor(colors[i]);
             dot.setOrigin({6.f, 6.f});
-            dot.setPosition(toScreen(bodies[i]->position));
+            dot.setPosition(toScreen(bodies[i]->getPosition()));
             window.draw(dot);
         }
 

@@ -1,23 +1,20 @@
-/// @file RigidBody.cpp
-/// @brief Implementation of the RigidBody class.
 #include "RigidBody.h"
 
-RigidBody::RigidBody(float mass, vec2D startPos) {
-    this->mass = mass;
-    this->position = startPos;
-    this->acceleration = vec2D();
-    this->velocity = vec2D();
-}
+RigidBody::RigidBody(float mass, vec2D startPos)
+    : mass(mass), position(startPos), velocity(vec2D()), acceleration(vec2D()) {}
 
-void RigidBody::update(float dt) {
-    this->velocity += (this->acceleration) * dt;
-    this->position += (this->velocity) * dt;
-}
+vec2D RigidBody::getPosition() const     { return position; }
+vec2D RigidBody::getVelocity() const     { return velocity; }
+vec2D RigidBody::getAcceleration() const { return acceleration; }
+float RigidBody::getMass() const         { return mass; }
+
+void RigidBody::setPosition(vec2D pos) { position = pos; }
+void RigidBody::setVelocity(vec2D vel) { velocity = vel; }
 
 void RigidBody::applyForce(vec2D force) {
-    this->acceleration += force * (1.0f / (this->mass));
+    acceleration += force * (1.0f / mass);
 }
 
 void RigidBody::clearForces() {
-    this->acceleration = vec2D();
+    acceleration = vec2D();
 }

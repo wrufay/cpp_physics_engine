@@ -1,7 +1,7 @@
 #include "Simulation.h"
 
-Simulation::Simulation(float G, float softening, int substeps)
-    : G(G), softening(softening), substeps(substeps) {}
+Simulation::Simulation(Integrator* integrator, float G, float softening, int substeps)
+    : integrator(integrator), G(G), softening(softening), substeps(substeps) {}
 
 void Simulation::addBody(RigidBody* body) {
     bodies.push_back(body);
@@ -13,7 +13,7 @@ void Simulation::step(float dt) {
     for (int s = 0; s < substeps; s++) {
         for (int i = 0; i < (int)bodies.size(); i++) {
             for (int j = i + 1; j < (int)bodies.size(); j++) {
-                vec2D diff = bodies[j]->position - bodies[i]->position;
+                vec2D diff = bodies[j]->getPosition() - bodies[i]->getPosition();
                 float r2 = diff.dot(diff);
                 float denom = r2 + softening * softening;
                 float force_mag = G * bodies[i]->getMass() * bodies[j]->getMass() / denom;
@@ -23,7 +23,7 @@ void Simulation::step(float dt) {
             }
         }
         for (RigidBody* body : bodies) {
-            body->update(sub_dt);
+            integrator->step(*body, sub_dt);
             body->clearForces();
         }
     }
